@@ -1,9 +1,16 @@
 <script>
 	export let processes = [];
 
-	$: sortedProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
+	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
 
-	$: results = calculateFCFS(sortedProcesses);
+	$: if (processes.length > 0) {
+		calculate();
+	}
+
+	function calculate() {
+		const sortedProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
+		results = calculateFCFS(sortedProcesses);
+	}
 
 	function calculateFCFS(processes) {
 		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
@@ -68,32 +75,27 @@
 	<!-- Gantt Chart -->
 	<div class="mb-8">
 		<h3 class="text-lg font-semibold mb-4">Gantt Chart</h3>
-		<div class="border border-gray-300 rounded-md overflow-hidden">
+		<div class="rounded-md overflow-hidden">
 			<div class="flex">
 				{#each results.ganttChart as segment}
-					<div
-						class="flex items-center justify-center text-white font-medium text-sm border-r border-gray-300 last:border-r-0"
-						class:bg-blue-500={segment.pid !== "Idle"}
-						class:bg-gray-400={segment.pid === "Idle"}
-						style="width: {Math.max(segment.duration * 40, 60)}px; height: 50px;"
-						title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})"
-					>
+					<div class="flex items-center justify-center text-white font-medium text-sm border-r border-gray-300 last:border-r-0" class:bg-blue-500={segment.pid !== "Idle"} class:bg-gray-400={segment.pid === "Idle"} style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})">
 						P{segment.pid}
 					</div>
 				{/each}
 			</div>
-			<div class="flex border-t border-gray-300">
-				{#each results.ganttChart as segment}
-					<div
-						class="text-xs text-center border-r border-gray-300 last:border-r-0 py-1"
-						style="width: {Math.max(segment.duration * 40, 60)}px;"
-					>
-						{segment.start}
+			<div class="flex relative" style="height: 30px;">
+				{#each results.ganttChart as segment, index}
+					<div class="relative" style="width: {Math.max(segment.duration * 60, 80)}px;">
+						{#if index === 0}
+							<div class="absolute left-0 top-2 text-sm font-medium text-gray-700">
+								{segment.start}
+							</div>
+						{/if}
+						<div class="absolute right-0 top-2 text-sm font-medium text-gray-700">
+							{segment.end}
+						</div>
 					</div>
 				{/each}
-				<div class="text-xs py-1 px-2">
-					{results.ganttChart.length > 0 ? results.ganttChart[results.ganttChart.length - 1].end : 0}
-				</div>
 			</div>
 		</div>
 	</div>
