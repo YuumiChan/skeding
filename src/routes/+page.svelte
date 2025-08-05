@@ -24,7 +24,22 @@
 	}
 
 	function addProcess() {
-		if (pid && burstTime && arrivalTime) {
+		// Auto-assign PID if not provided
+		if (!pid || pid === "") {
+			// Find the smallest available PID starting from 1
+			let autoPid = 1;
+			while (processes.some((p) => p.pid === autoPid)) {
+				autoPid++;
+			}
+			pid = autoPid.toString();
+		}
+
+		// Default arrival time to 0 if not provided
+		if (!arrivalTime || arrivalTime === "") {
+			arrivalTime = "0";
+		}
+
+		if (pid && burstTime && arrivalTime !== "") {
 			const pidNum = parseInt(pid);
 			const burstNum = parseInt(burstTime);
 			const arrivalNum = parseInt(arrivalTime);
@@ -56,7 +71,13 @@
 			arrivalTime = "";
 			showResults = false; // Hide results when new process is added
 		} else {
-			alert("Please fill all fields");
+			alert("Please fill burst time field");
+		}
+	}
+
+	function handleKeyPress(event) {
+		if (event.key === "Enter") {
+			addProcess();
 		}
 	}
 
@@ -67,10 +88,10 @@
 
 	function addExampleData() {
 		processes = [
-			{ pid: 1, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 5) },
-			{ pid: 2, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 5) },
-			{ pid: 3, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 5) },
-			{ pid: 4, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 5) },
+			{ pid: 1, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 11) },
+			{ pid: 2, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 11) },
+			{ pid: 3, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 11) },
+			{ pid: 4, burstTime: Math.floor(Math.random() * 10) + 1, arrivalTime: Math.floor(Math.random() * 11) },
 		];
 		showResults = false;
 	}
@@ -140,21 +161,24 @@
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 			<div>
 				<label for="pid" class="block text-sm font-medium text-gray-700 mb-2">Process ID</label>
-				<input id="pid" type="number" bind:value={pid} placeholder="Enter PID" min="1" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<input id="pid" type="number" bind:value={pid} placeholder="Auto-assign if empty" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div>
-				<label for="burst" class="block text-sm font-medium text-gray-700 mb-2">Burst Time</label>
-				<input id="burst" type="number" bind:value={burstTime} placeholder="Enter burst time" min="0" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<label for="burst" class="block text-sm font-medium text-gray-700 mb-2">Burst Time <span class="text-red-500">*</span></label>
+				<input id="burst" type="number" bind:value={burstTime} placeholder="Enter burst time" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div>
 				<label for="arrival" class="block text-sm font-medium text-gray-700 mb-2">Arrival Time</label>
-				<input id="arrival" type="number" bind:value={arrivalTime} placeholder="Enter arrival time" min="0" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<input id="arrival" type="number" bind:value={arrivalTime} placeholder="Default: 0" min="0" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div class="flex items-end gap-2">
 				<button on:click={addProcess} class="flex-1 bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"> Add Process </button>
 				<button on:click={addExampleData} class="bg-gray-500 text-white px-4 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors text-sm" title="Add example processes"> Example </button>
 			</div>
 		</div>
+		<p class="text-sm text-gray-600 mt-3">
+			💡 <strong>Tips:</strong> Press Enter to add process • PID auto-assigns if empty • Arrival time defaults to 0 • Only Burst Time is required
+		</p>
 	</div>
 
 	<!-- Process List -->
@@ -163,7 +187,6 @@
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-xl font-semibold">Current Processes ({processes.length})</h2>
 				<div class="flex gap-2">
-					<button on:click={addExampleData} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors text-sm" disabled={processes.length > 0} class:opacity-50={processes.length > 0} class:cursor-not-allowed={processes.length > 0}> Load Example </button>
 					<button on:click={clearProcesses} class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"> Clear All </button>
 				</div>
 			</div>
