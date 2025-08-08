@@ -41,7 +41,9 @@
 			}
 
 			// Select process with shortest remaining time
-			const shortestProcess = availableProcesses.reduce((shortest, current) => (current.remainingTime < shortest.remainingTime ? current : shortest));
+			const shortestProcess = availableProcesses.reduce((shortest, current) =>
+				current.remainingTime < shortest.remainingTime ? current : shortest
+			);
 
 			// Check if we need to preempt (if there's a new process that arrives during execution)
 			const nextEventTime = getNextEventTime(currentTime, remainingProcesses, shortestProcess);
@@ -125,16 +127,22 @@
 	}
 </script>
 
-<div class="bg-white rounded-lg shadow-md p-6">
-	<h2 class="text-2xl font-semibold mb-6 text-purple-600">Shortest Remaining Time (SRT) Scheduling</h2>
+<div class="rounded-lg shadow-lg p-6" style="background-color: #3b4252; border: 1px solid #434c5e;">
+	<h2 class="text-2xl font-semibold mb-6 text-white">Shortest Remaining Time (SRT) Scheduling</h2>
 
 	<!-- Gantt Chart -->
 	<div class="mb-8">
-		<h3 class="text-lg font-semibold mb-4">Gantt Chart</h3>
-		<div class="rounded-md overflow-hidden">
+		<h3 class="text-lg font-semibold mb-4 text-white">Gantt Chart</h3>
+		<div class="rounded-md overflow-hidden" style="background-color: #434c5e;">
 			<div class="flex">
 				{#each results.ganttChart as segment}
-					<div class="flex items-center justify-center text-white font-medium text-sm border-r border-gray-300 last:border-r-0" class:bg-purple-500={segment.pid !== "Idle"} class:bg-gray-400={segment.pid === "Idle"} style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})">
+					<div
+						class="flex items-center justify-center text-white font-medium text-sm border-r last:border-r-0"
+						style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px; background-color: {segment.pid !== 'Idle'
+							? '#b48ead'
+							: '#4c566a'}; border-color: #2e3440;"
+						title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})"
+					>
 						P{segment.pid}
 					</div>
 				{/each}
@@ -143,11 +151,11 @@
 				{#each results.ganttChart as segment, index}
 					<div class="relative" style="width: {Math.max(segment.duration * 60, 80)}px;">
 						{#if index === 0}
-							<div class="absolute left-0 top-2 text-sm font-medium text-gray-700">
+							<div class="absolute left-0 top-2 text-sm font-medium text-white">
 								{segment.start}
 							</div>
 						{/if}
-						<div class="absolute right-0 top-2 text-sm font-medium text-gray-700">
+						<div class="absolute right-0 top-2 text-sm font-medium text-white">
 							{segment.end}
 						</div>
 					</div>
@@ -158,28 +166,28 @@
 
 	<!-- Results Table -->
 	<div class="mb-6">
-		<h3 class="text-lg font-semibold mb-4">Process Details</h3>
+		<h3 class="text-lg font-semibold mb-4 text-white">Process Details</h3>
 		<div class="overflow-x-auto">
-			<table class="w-full border-collapse border border-gray-300">
-				<thead class="bg-purple-50">
+			<table class="w-full border-collapse rounded-lg overflow-hidden" style="border: 1px solid #4c566a;">
+				<thead style="background-color: #434c5e;">
 					<tr>
-						<th class="border border-gray-300 px-4 py-3 text-left">PID</th>
-						<th class="border border-gray-300 px-4 py-3 text-left">Burst Time</th>
-						<th class="border border-gray-300 px-4 py-3 text-left">Arrival Time</th>
-						<th class="border border-gray-300 px-4 py-3 text-left">Completion Time</th>
-						<th class="border border-gray-300 px-4 py-3 text-left">Turnaround Time</th>
-						<th class="border border-gray-300 px-4 py-3 text-left">Waiting Time</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">PID</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">Burst Time</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">Arrival Time</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">Completion Time</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">Turnaround Time</th>
+						<th class="px-4 py-3 text-left text-white font-semibold" style="border: 1px solid #4c566a;">Waiting Time</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each results.processResults as process}
-						<tr class="hover:bg-gray-50">
-							<td class="border border-gray-300 px-4 py-2 text-center font-medium">P{process.pid}</td>
-							<td class="border border-gray-300 px-4 py-2 text-center">{process.burstTime}</td>
-							<td class="border border-gray-300 px-4 py-2 text-center">{process.arrivalTime}</td>
-							<td class="border border-gray-300 px-4 py-2 text-center">{process.completionTime}</td>
-							<td class="border border-gray-300 px-4 py-2 text-center">{process.turnaroundTime}</td>
-							<td class="border border-gray-300 px-4 py-2 text-center">{process.waitingTime}</td>
+						<tr class="hover:opacity-90 transition-all duration-200" style="background-color: #2e3440;">
+							<td class="px-4 py-2 text-center font-medium text-white" style="border: 1px solid #4c566a;">P{process.pid}</td>
+							<td class="px-4 py-2 text-center text-white" style="border: 1px solid #4c566a;">{process.burstTime}</td>
+							<td class="px-4 py-2 text-center text-white" style="border: 1px solid #4c566a;">{process.arrivalTime}</td>
+							<td class="px-4 py-2 text-center text-white" style="border: 1px solid #4c566a;">{process.completionTime}</td>
+							<td class="px-4 py-2 text-center text-white" style="border: 1px solid #4c566a;">{process.turnaroundTime}</td>
+							<td class="px-4 py-2 text-center text-white" style="border: 1px solid #4c566a;">{process.waitingTime}</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -189,13 +197,13 @@
 
 	<!-- Average Times -->
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-		<div class="bg-green-50 rounded-lg p-4 border border-green-200">
-			<h4 class="font-semibold text-green-800 mb-2">Average Turnaround Time</h4>
-			<p class="text-2xl font-bold text-green-600">{results.avgTurnaroundTime}</p>
+		<div class="rounded-lg p-4" style="background-color: #a3be8c; border: 1px solid #8fbcbb;">
+			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Turnaround Time</h4>
+			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgTurnaroundTime}</p>
 		</div>
-		<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-			<h4 class="font-semibold text-blue-800 mb-2">Average Waiting Time</h4>
-			<p class="text-2xl font-bold text-blue-600">{results.avgWaitingTime}</p>
+		<div class="rounded-lg p-4" style="background-color: #88c0d0; border: 1px solid #81a1c1;">
+			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Waiting Time</h4>
+			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgWaitingTime}</p>
 		</div>
 	</div>
 </div>

@@ -143,88 +143,171 @@
 </script>
 
 <div class="container mx-auto p-6 max-w-6xl">
-	<h1 class="text-3xl font-bold text-center mb-8">CPU Scheduling Algorithms</h1>
+	<h1 class="text-3xl font-bold text-center mb-8 text-white">CPU Scheduling Algorithms</h1>
 
 	<!-- Algorithm Selection -->
-	<div class="bg-white rounded-lg shadow-md p-6 mb-6">
-		<h2 class="text-xl font-semibold mb-4">Select Scheduling Algorithm</h2>
-		<select bind:value={selectedAlgorithm} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+	<div class="rounded-lg shadow-lg p-6 mb-6" style="background-color: #3b4252; border: 1px solid #434c5e;">
+		<h2 class="text-xl font-semibold mb-4 text-white">Select Scheduling Algorithm</h2>
+		<select
+			bind:value={selectedAlgorithm}
+			class="w-full p-3 rounded-md focus:outline-none focus:ring-2 text-white"
+			style="background-color: #434c5e; border: 1px solid #4c566a; focus:ring-color: #88c0d0;"
+		>
 			{#each algorithms as algorithm}
-				<option value={algorithm.value}>{algorithm.label}</option>
+				<option value={algorithm.value} style="background-color: #434c5e; color: #d8dee9;">{algorithm.label}</option>
 			{/each}
 		</select>
 	</div>
 
 	<!-- Process Input Form -->
-	<div class="bg-white rounded-lg shadow-md p-6 mb-6">
-		<h2 class="text-xl font-semibold mb-4">Add Process</h2>
+	<div class="rounded-lg shadow-lg p-6 mb-6" style="background-color: #3b4252; border: 1px solid #434c5e;">
+		<h2 class="text-xl font-semibold mb-4 text-white">Add Process</h2>
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 			<div>
-				<label for="pid" class="block text-sm font-medium text-gray-700 mb-2">Process ID</label>
-				<input id="pid" type="number" bind:value={pid} placeholder="Auto-assign if empty" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<label for="pid" class="block text-sm font-medium mb-2" style="color: #e5e9f0;">Process ID</label>
+				<input
+					id="pid"
+					type="number"
+					bind:value={pid}
+					placeholder="Auto-assign if empty"
+					min="1"
+					on:keypress={handleKeyPress}
+					class="w-full p-3 rounded-md focus:outline-none focus:ring-2 text-white placeholder-gray-400"
+					style="background-color: #434c5e; border: 1px solid #4c566a; focus:ring-color: #88c0d0;"
+				/>
 			</div>
 			<div>
-				<label for="burst" class="block text-sm font-medium text-gray-700 mb-2">Burst Time <span class="text-red-500">*</span></label>
-				<input id="burst" type="number" bind:value={burstTime} placeholder="Enter burst time" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<label for="burst" class="block text-sm font-medium mb-2" style="color: #e5e9f0;"
+					>Burst Time <span style="color: #bf616a;">*</span></label
+				>
+				<input
+					id="burst"
+					type="number"
+					bind:value={burstTime}
+					placeholder="Enter burst time"
+					min="1"
+					on:keypress={handleKeyPress}
+					class="w-full p-3 rounded-md focus:outline-none focus:ring-2 text-white placeholder-gray-400"
+					style="background-color: #434c5e; border: 1px solid #4c566a; focus:ring-color: #88c0d0;"
+				/>
 			</div>
 			<div>
-				<label for="arrival" class="block text-sm font-medium text-gray-700 mb-2">Arrival Time</label>
-				<input id="arrival" type="number" bind:value={arrivalTime} placeholder="Default: 0" min="0" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<label for="arrival" class="block text-sm font-medium mb-2" style="color: #e5e9f0;">Arrival Time</label>
+				<input
+					id="arrival"
+					type="number"
+					bind:value={arrivalTime}
+					placeholder="Default: 0"
+					min="0"
+					on:keypress={handleKeyPress}
+					class="w-full p-3 rounded-md focus:outline-none focus:ring-2 text-white placeholder-gray-400"
+					style="background-color: #434c5e; border: 1px solid #4c566a; focus:ring-color: #88c0d0;"
+				/>
 			</div>
 			<div class="flex items-end gap-2">
-				<button on:click={addProcess} class="flex-1 bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"> Add Process </button>
-				<button on:click={addExampleData} class="bg-gray-500 text-white px-4 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors text-sm" title="Add example processes"> Example </button>
+				<button
+					on:click={addProcess}
+					class="flex-1 text-white p-3 rounded-md hover:opacity-90 focus:outline-none focus:ring-2 transition-all duration-200"
+					style="background-color: #88c0d0; focus:ring-color: #5e81ac;"
+				>
+					Add Process
+				</button>
+				<button
+					on:click={addExampleData}
+					class="text-white px-4 py-3 rounded-md hover:opacity-90 focus:outline-none focus:ring-2 transition-all duration-200 text-sm"
+					style="background-color: #4c566a; focus:ring-color: #434c5e;"
+					title="Add example processes"
+				>
+					Example
+				</button>
 			</div>
 		</div>
-		<p class="text-sm text-gray-600 mt-3">
+		<p class="text-sm mt-3" style="color: #d8dee9;">
 			💡 <strong>Tips:</strong> Press Enter to add process • PID auto-assigns if empty • Arrival time defaults to 0 • Only Burst Time is required
 		</p>
 	</div>
 
 	<!-- Process List -->
 	{#if processes.length > 0}
-		<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+		<div class="rounded-lg shadow-lg p-6 mb-6" style="background-color: #3b4252; border: 1px solid #434c5e;">
 			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-xl font-semibold">Current Processes ({processes.length})</h2>
+				<h2 class="text-xl font-semibold text-white">Current Processes ({processes.length})</h2>
 				<div class="flex gap-2">
-					<button on:click={clearProcesses} class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"> Clear All </button>
+					<button
+						on:click={clearProcesses}
+						class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-all duration-200"
+						style="background-color: #bf616a;"
+					>
+						Clear All
+					</button>
 				</div>
 			</div>
 			<div class="overflow-x-auto">
-				<table class="w-full border-collapse border border-gray-300">
-					<thead class="bg-gray-50">
+				<table class="w-full border-collapse rounded-lg overflow-hidden" style="border: 1px solid #4c566a;">
+					<thead style="background-color: #434c5e;">
 						<tr>
-							<th class="border border-gray-300 px-4 py-2">PID</th>
-							<th class="border border-gray-300 px-4 py-2">Burst Time</th>
-							<th class="border border-gray-300 px-4 py-2">Arrival Time</th>
-							<th class="border border-gray-300 px-4 py-2">Action</th>
+							<th class="px-4 py-2 text-white font-semibold" style="border: 1px solid #4c566a;">PID</th>
+							<th class="px-4 py-2 text-white font-semibold" style="border: 1px solid #4c566a;">Burst Time</th>
+							<th class="px-4 py-2 text-white font-semibold" style="border: 1px solid #4c566a;">Arrival Time</th>
+							<th class="px-4 py-2 text-white font-semibold" style="border: 1px solid #4c566a;">Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each processes as process, index}
-							<tr class="hover:bg-gray-50">
-								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input type="number" value={process.pid} on:input={(e) => updateProcess(index, "pid", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="1" />
+							<tr class="hover:opacity-90 transition-all duration-200" style="background-color: #2e3440;">
+								<td class="px-2 py-2 text-center" style="border: 1px solid #4c566a;">
+									<input
+										type="number"
+										value={process.pid}
+										on:input={(e) => updateProcess(index, "pid", e.target.value)}
+										class="w-full text-center border-0 bg-transparent focus:outline-none rounded px-2 py-1 text-white"
+										style="focus:background-color: #434c5e;"
+										min="1"
+									/>
 								</td>
-								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input type="number" value={process.burstTime} on:input={(e) => updateProcess(index, "burstTime", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" />
+								<td class="px-2 py-2 text-center" style="border: 1px solid #4c566a;">
+									<input
+										type="number"
+										value={process.burstTime}
+										on:input={(e) => updateProcess(index, "burstTime", e.target.value)}
+										class="w-full text-center border-0 bg-transparent focus:outline-none rounded px-2 py-1 text-white"
+										style="focus:background-color: #434c5e;"
+										min="0"
+									/>
 								</td>
-								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input type="number" value={process.arrivalTime} on:input={(e) => updateProcess(index, "arrivalTime", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" />
+								<td class="px-2 py-2 text-center" style="border: 1px solid #4c566a;">
+									<input
+										type="number"
+										value={process.arrivalTime}
+										on:input={(e) => updateProcess(index, "arrivalTime", e.target.value)}
+										class="w-full text-center border-0 bg-transparent focus:outline-none rounded px-2 py-1 text-white"
+										style="focus:background-color: #434c5e;"
+										min="0"
+									/>
 								</td>
-								<td class="border border-gray-300 px-4 py-2 text-center">
-									<button on:click={() => removeProcess(index)} class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"> Remove </button>
+								<td class="px-4 py-2 text-center" style="border: 1px solid #4c566a;">
+									<button
+										on:click={() => removeProcess(index)}
+										class="text-white px-3 py-1 rounded text-sm hover:opacity-90 transition-all duration-200"
+										style="background-color: #bf616a;"
+									>
+										Remove
+									</button>
 								</td>
 							</tr>
 						{/each}
 					</tbody>
 				</table>
 			</div>
-			<p class="text-sm text-gray-600 mt-2">💡 Tip: Click on any value in the table to edit it directly</p>
+			<p class="text-sm mt-2" style="color: #d8dee9;">💡 Tip: Click on any value in the table to edit it directly</p>
 
 			<!-- Calculate Button -->
 			<div class="mt-4 text-center">
-				<button on:click={calculateResults} class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors font-semibold">
+				<button
+					on:click={calculateResults}
+					class="text-white px-6 py-3 rounded-md hover:opacity-90 focus:outline-none focus:ring-2 transition-all duration-200 font-semibold"
+					style="background-color: #a3be8c; focus:ring-color: #8fbcbb;"
+				>
 					Calculate {algorithms.find((a) => a.value === selectedAlgorithm)?.label || selectedAlgorithm}
 				</button>
 			</div>
@@ -247,6 +330,88 @@
 
 <style>
 	:global(body) {
-		background-color: #f3f4f6;
+		background-color: #2e3440; /* Nord0 - Polar Night darkest */
+		color: #d8dee9; /* Nord4 - Snow Storm lightest */
+		font-family:
+			"Segoe UI",
+			system-ui,
+			-apple-system,
+			sans-serif;
+	}
+
+	:global(.nord-bg-dark) {
+		background-color: #2e3440; /* Nord0 */
+	}
+
+	:global(.nord-bg-darker) {
+		background-color: #3b4252; /* Nord1 */
+	}
+
+	:global(.nord-bg-darkest) {
+		background-color: #434c5e; /* Nord2 */
+	}
+
+	:global(.nord-bg-light) {
+		background-color: #4c566a; /* Nord3 */
+	}
+
+	:global(.nord-text-light) {
+		color: #d8dee9; /* Nord4 */
+	}
+
+	:global(.nord-text-lighter) {
+		color: #e5e9f0; /* Nord5 */
+	}
+
+	:global(.nord-text-lightest) {
+		color: #eceff4; /* Nord6 */
+	}
+
+	:global(.nord-accent-frost-1) {
+		background-color: #8fbcbb; /* Nord7 */
+	}
+
+	:global(.nord-accent-frost-2) {
+		background-color: #88c0d0; /* Nord8 */
+	}
+
+	:global(.nord-accent-frost-3) {
+		background-color: #81a1c1; /* Nord9 */
+	}
+
+	:global(.nord-accent-frost-4) {
+		background-color: #5e81ac; /* Nord10 */
+	}
+
+	:global(.nord-accent-aurora-red) {
+		background-color: #bf616a; /* Nord11 */
+	}
+
+	:global(.nord-accent-aurora-orange) {
+		background-color: #d08770; /* Nord12 */
+	}
+
+	:global(.nord-accent-aurora-yellow) {
+		background-color: #ebcb8b; /* Nord13 */
+	}
+
+	:global(.nord-accent-aurora-green) {
+		background-color: #a3be8c; /* Nord14 */
+	}
+
+	:global(.nord-accent-aurora-purple) {
+		background-color: #b48ead; /* Nord15 */
+	}
+
+	/* Hide number input spinners/arrows */
+	input[type="number"]::-webkit-outer-spin-button,
+	input[type="number"]::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Firefox */
+	input[type="number"] {
+		-moz-appearance: textfield;
 	}
 </style>
