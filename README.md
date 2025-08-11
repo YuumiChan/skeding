@@ -8,6 +8,10 @@ when installed, even offline,can compute:
 - Shortest Job First (SJF)
 - Shortest Remaining Job (SRT)
 - Round Robin
+- Priority Non-preemptive
+- Priority Preemptive
+
+[DEMO](https://cpu-scheculing.netlify.app/)
 
 # Installation
 ### Prerequisite
