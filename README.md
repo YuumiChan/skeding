@@ -10,6 +10,7 @@ when installed, even offline,can compute:
 - Round Robin
 - Priority Non-preemptive
 - Priority Preemptive
+- Highest Response Ratio Next (HRRN)
 
 [DEMO](https://cpu-scheculing.netlify.app/)
 

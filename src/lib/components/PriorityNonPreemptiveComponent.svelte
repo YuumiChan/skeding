@@ -92,14 +92,7 @@
 		<div class="rounded-md overflow-hidden">
 			<div class="flex">
 				{#each results.ganttChart as segment}
-					<div
-						class="flex flex-col items-center justify-center text-white font-medium text-sm border-r border-gray-300 last:border-r-0"
-						class:bg-purple-500={segment.pid !== "Idle"}
-						class:bg-gray-400={segment.pid === "Idle"}
-						style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px;"
-						title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration}, Priority: {segment.priority ||
-							'N/A'})"
-					>
+					<div class="flex flex-col items-center justify-center text-white font-medium text-sm border-r border-gray-300 last:border-r-0" class:bg-purple-500={segment.pid !== "Idle"} class:bg-gray-400={segment.pid === "Idle"} style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration}, Priority: {segment.priority || 'N/A'})">
 						<div>P{segment.pid}</div>
 						{#if segment.priority !== undefined && segment.pid !== "Idle"}
 							<div class="text-xs opacity-90">Pri: {segment.priority}</div>
@@ -158,7 +151,7 @@
 	</div>
 
 	<!-- Average Times -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 		<div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
 			<h4 class="font-semibold text-purple-800 mb-2">Average Turnaround Time</h4>
 			<p class="text-2xl font-bold text-purple-600">{results.avgTurnaroundTime}</p>
@@ -166,6 +159,38 @@
 		<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
 			<h4 class="font-semibold text-blue-800 mb-2">Average Waiting Time</h4>
 			<p class="text-2xl font-bold text-blue-600">{results.avgWaitingTime}</p>
+		</div>
+	</div>
+
+	<!-- Formulas Section -->
+	<div class="rounded-lg p-4" style="background-color: #434c5e; border: 1px solid #4c566a;">
+		<h3 class="text-lg font-semibold mb-4 text-white">Formulas</h3>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div>
+				<h4 class="text-md font-semibold mb-2 text-white">Priority Non-Preemptive Specific:</h4>
+				<div class="space-y-2">
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-yellow-400 text-sm">Select highest priority (lower number = higher priority)</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-yellow-400 text-sm">Non-preemptive algorithm</div>
+					</div>
+				</div>
+			</div>
+			<div>
+				<h4 class="text-md font-semibold mb-2 text-white">General Scheduling:</h4>
+				<div class="space-y-2">
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Completion Time = Start Time + Burst Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Turnaround Time = Completion Time - Arrival Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Waiting Time = Turnaround Time - Burst Time</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

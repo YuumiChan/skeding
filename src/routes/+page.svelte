@@ -1,10 +1,11 @@
 <script>
 	import FCFSComponent from "$lib/components/FCFSComponent.svelte";
+	import HRRNComponent from "$lib/components/HRRNComponent.svelte";
+	import PriorityNonPreemptiveComponent from "$lib/components/PriorityNonPreemptiveComponent.svelte";
+	import PriorityPreemptiveComponent from "$lib/components/PriorityPreemptiveComponent.svelte";
 	import RoundRobinComponent from "$lib/components/RoundRobinComponent.svelte";
 	import SJFComponent from "$lib/components/SJFComponent.svelte";
 	import SRTComponent from "$lib/components/SRTComponent.svelte";
-	import PriorityNonPreemptiveComponent from "$lib/components/PriorityNonPreemptiveComponent.svelte";
-	import PriorityPreemptiveComponent from "$lib/components/PriorityPreemptiveComponent.svelte";
 
 	let selectedAlgorithm = "FCFS";
 	let pid = "";
@@ -21,6 +22,7 @@
 		{ value: "RR", label: "Round Robin" },
 		{ value: "PNP", label: "Priority (Non-Preemptive)" },
 		{ value: "PP", label: "Priority (Preemptive)" },
+		{ value: "HRRN", label: "Highest Response Ratio Next (HRRN)" },
 	];
 
 	// Hide results when algorithm changes
@@ -199,10 +201,7 @@
 	<!-- Algorithm Selection -->
 	<div class="bg-white rounded-lg shadow-md p-6 mb-6">
 		<h2 class="text-xl font-semibold mb-4">Select Scheduling Algorithm</h2>
-		<select
-			bind:value={selectedAlgorithm}
-			class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-		>
+		<select bind:value={selectedAlgorithm} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 			{#each algorithms as algorithm}
 				<option value={algorithm.value} style="background-color: #434c5e; color: #d8dee9;">{algorithm.label}</option>
 			{/each}
@@ -215,73 +214,29 @@
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
 			<div>
 				<label for="pid" class="block text-sm font-medium text-gray-700 mb-2">Process ID</label>
-				<input
-					id="pid"
-					type="number"
-					bind:value={pid}
-					placeholder="Auto-assign if empty"
-					min="1"
-					on:keypress={handleKeyPress}
-					class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-				/>
+				<input id="pid" type="number" bind:value={pid} placeholder="Auto-assign if empty" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div>
 				<label for="arrival" class="block text-sm font-medium text-gray-700 mb-2">Arrival Time</label>
-				<input
-					id="arrival"
-					type="number"
-					bind:value={arrivalTime}
-					placeholder="Default: 0"
-					min="0"
-					on:keypress={handleKeyPress}
-					class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-				/>
+				<input id="arrival" type="number" bind:value={arrivalTime} placeholder="Default: 0" min="0" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div>
 				<label for="burst" class="block text-sm font-medium text-gray-700 mb-2">Burst Time <span class="text-red-500">*</span></label>
-				<input
-					id="burst"
-					type="number"
-					bind:value={burstTime}
-					placeholder="Enter burst time"
-					min="1"
-					on:keypress={handleKeyPress}
-					class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-				/>
+				<input id="burst" type="number" bind:value={burstTime} placeholder="Enter burst time" min="1" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div>
 				<label for="priority" class="block text-sm font-medium text-gray-700 mb-2"
 					>Priority {#if selectedAlgorithm === "PNP" || selectedAlgorithm === "PP"}<span class="text-red-500">*</span>{/if}</label
 				>
-				<input
-					id="priority"
-					type="number"
-					bind:value={priority}
-					placeholder={selectedAlgorithm === "PNP" || selectedAlgorithm === "PP" ? "Lower = Higher Priority" : "Optional"}
-					min="0"
-					on:keypress={handleKeyPress}
-					class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-				/>
+				<input id="priority" type="number" bind:value={priority} placeholder={selectedAlgorithm === "PNP" || selectedAlgorithm === "PP" ? "Lower = Higher Priority" : "Optional"} min="0" on:keypress={handleKeyPress} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 			</div>
 			<div class="flex items-end gap-2">
-				<button
-					on:click={addProcess}
-					class="flex-1 bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-				>
-					Add Process
-				</button>
-				<button
-					on:click={addExampleData}
-					class="bg-gray-500 text-white px-4 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors text-sm"
-					title="Add example processes"
-				>
-					Example
-				</button>
+				<button on:click={addProcess} class="flex-1 bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"> Add Process </button>
+				<button on:click={addExampleData} class="bg-gray-500 text-white px-4 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors text-sm" title="Add example processes"> Example </button>
 			</div>
 		</div>
 		<p class="text-sm text-gray-600 mt-3">
-			💡 <strong>Tips:</strong> Press Enter to add process • PID auto-assigns if empty • Arrival time defaults to 0 • Priority required for Priority
-			algorithms • Only Burst Time is always required
+			💡 <strong>Tips:</strong> Press Enter to add process • PID auto-assigns if empty • Arrival time defaults to 0 • Priority required for Priority algorithms • Only Burst Time is always required
 		</p>
 	</div>
 
@@ -291,9 +246,7 @@
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-xl font-semibold text-white">Current Processes ({processes.length})</h2>
 				<div class="flex gap-2">
-					<button on:click={clearProcesses} class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
-						Clear All
-					</button>
+					<button on:click={clearProcesses} class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"> Clear All </button>
 				</div>
 			</div>
 			<div class="overflow-x-auto">
@@ -311,49 +264,19 @@
 						{#each processes as process, index}
 							<tr class="hover:bg-gray-50">
 								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input
-										type="number"
-										value={process.pid}
-										on:input={(e) => updateProcess(index, "pid", e.target.value)}
-										class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1"
-										min="1"
-									/>
+									<input type="number" value={process.pid} on:input={(e) => updateProcess(index, "pid", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="1" />
 								</td>
 								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input
-										type="number"
-										value={process.arrivalTime}
-										on:input={(e) => updateProcess(index, "arrivalTime", e.target.value)}
-										class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1"
-										min="0"
-									/>
+									<input type="number" value={process.arrivalTime} on:input={(e) => updateProcess(index, "arrivalTime", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" />
 								</td>
 								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input
-										type="number"
-										value={process.burstTime}
-										on:input={(e) => updateProcess(index, "burstTime", e.target.value)}
-										class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1"
-										min="0"
-									/>
+									<input type="number" value={process.burstTime} on:input={(e) => updateProcess(index, "burstTime", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" />
 								</td>
 								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input
-										type="number"
-										value={process.priority || ""}
-										on:input={(e) => updateProcess(index, "priority", e.target.value)}
-										class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1"
-										min="0"
-										placeholder="Optional"
-									/>
+									<input type="number" value={process.priority || ""} on:input={(e) => updateProcess(index, "priority", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" placeholder="Optional" />
 								</td>
 								<td class="border border-gray-300 px-4 py-2 text-center">
-									<button
-										on:click={() => removeProcess(index)}
-										class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
-									>
-										Remove
-									</button>
+									<button on:click={() => removeProcess(index)} class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"> Remove </button>
 								</td>
 							</tr>
 						{/each}
@@ -364,10 +287,7 @@
 
 			<!-- Calculate Button -->
 			<div class="mt-4 text-center">
-				<button
-					on:click={calculateResults}
-					class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors font-semibold"
-				>
+				<button on:click={calculateResults} class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors font-semibold">
 					Calculate {algorithms.find((a) => a.value === selectedAlgorithm)?.label || selectedAlgorithm}
 				</button>
 			</div>
@@ -388,6 +308,8 @@
 			<PriorityNonPreemptiveComponent {processes} />
 		{:else if selectedAlgorithm === "PP"}
 			<PriorityPreemptiveComponent {processes} />
+		{:else if selectedAlgorithm === "HRRN"}
+			<HRRNComponent {processes} />
 		{/if}
 	{/if}
 </div>

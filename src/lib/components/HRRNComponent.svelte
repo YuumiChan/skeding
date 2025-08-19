@@ -1,4 +1,5 @@
 <script>
+	// @ts-nocheck
 	export let processes = [];
 
 	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
@@ -8,53 +9,83 @@
 	}
 
 	function calculate() {
-		const sortedProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
-		results = calculateFCFS(sortedProcesses);
+		results = calculateHRRN(processes);
 	}
 
-	function calculateFCFS(processes) {
+	function calculateHRRN(processes) {
 		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
 
 		const processResults = [];
 		const ganttChart = [];
 		let currentTime = 0;
+		let remainingProcesses = [...processes];
 
-		for (let i = 0; i < processes.length; i++) {
-			const process = processes[i];
+		while (remainingProcesses.length > 0) {
+			// Get processes that have arrived by current time
+			const availableProcesses = remainingProcesses.filter((p) => p.arrivalTime <= currentTime);
 
-			// If current time is less than arrival time, wait
-			if (currentTime < process.arrivalTime) {
-				if (currentTime !== process.arrivalTime) {
+			if (availableProcesses.length === 0) {
+				// No process available, advance time to next arrival
+				const nextArrival = Math.min(...remainingProcesses.map((p) => p.arrivalTime));
+				if (currentTime < nextArrival) {
 					ganttChart.push({
 						pid: "Idle",
 						start: currentTime,
-						end: process.arrivalTime,
-						duration: process.arrivalTime - currentTime,
+						end: nextArrival,
+						duration: nextArrival - currentTime,
 					});
+					currentTime = nextArrival;
 				}
-				currentTime = process.arrivalTime;
+				continue;
 			}
 
+			// Calculate response ratio for each available process
+			// Response Ratio = (Waiting Time + Service Time) / Service Time
+			// Where Waiting Time = Current Time - Arrival Time
+			const processesWithRatio = availableProcesses.map((process) => {
+				const waitingTime = currentTime - process.arrivalTime;
+				const responseRatio = (waitingTime + process.burstTime) / process.burstTime;
+				return {
+					...process,
+					waitingTime,
+					responseRatio: parseFloat(responseRatio.toFixed(4)),
+				};
+			});
+
+			// Select process with highest response ratio
+			// If there's a tie, select the one that arrived first (FCFS for ties)
+			const selectedProcess = processesWithRatio.reduce((highest, current) => {
+				if (current.responseRatio > highest.responseRatio) {
+					return current;
+				} else if (current.responseRatio === highest.responseRatio) {
+					// Break tie by arrival time (FCFS)
+					return current.arrivalTime < highest.arrivalTime ? current : highest;
+				}
+				return highest;
+			});
+
 			const startTime = currentTime;
-			const completionTime = currentTime + process.burstTime;
-			const turnaroundTime = completionTime - process.arrivalTime;
-			const waitingTime = turnaroundTime - process.burstTime;
+			const completionTime = currentTime + selectedProcess.burstTime;
+			const turnaroundTime = completionTime - selectedProcess.arrivalTime;
+			const waitingTime = turnaroundTime - selectedProcess.burstTime;
 
 			processResults.push({
-				...process,
+				...selectedProcess,
 				completionTime,
 				turnaroundTime,
 				waitingTime,
 			});
 
 			ganttChart.push({
-				pid: process.pid,
+				pid: selectedProcess.pid,
 				start: startTime,
 				end: completionTime,
-				duration: process.burstTime,
+				duration: selectedProcess.burstTime,
+				responseRatio: selectedProcess.responseRatio,
 			});
 
 			currentTime = completionTime;
+			remainingProcesses = remainingProcesses.filter((p) => p.pid !== selectedProcess.pid);
 		}
 
 		const avgTurnaroundTime = processResults.reduce((sum, p) => sum + p.turnaroundTime, 0) / processes.length;
@@ -70,7 +101,7 @@
 </script>
 
 <div class="rounded-lg shadow-lg p-6" style="background-color: #3b4252; border: 1px solid #434c5e;">
-	<h2 class="text-2xl font-semibold mb-6 text-white">First Come First Serve (FCFS) Scheduling</h2>
+	<h2 class="text-2xl font-semibold mb-6 text-white">Highest Response Ratio Next (HRRN) Scheduling</h2>
 
 	<!-- Gantt Chart -->
 	<div class="mb-8">
@@ -78,14 +109,17 @@
 		<div class="rounded-md overflow-hidden" style="background-color: #434c5e;">
 			<div class="flex">
 				{#each results.ganttChart as segment}
-					<div class="flex items-center justify-center text-white font-medium text-sm border-r last:border-r-0" style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px; background-color: {segment.pid !== 'Idle' ? '#88c0d0' : '#4c566a'}; border-color: #2e3440;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})">
-						P{segment.pid}
+					<div class="flex flex-col items-center justify-center text-white font-medium text-sm border-r last:border-r-0" style="width: {Math.max(segment.duration * 60, 100)}px; height: 80px; background-color: {segment.pid !== 'Idle' ? '#d08770' : '#4c566a'}; border-color: #2e3440;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration}){segment.responseRatio ? `, RR: ${segment.responseRatio}` : ''}">
+						<span>P{segment.pid}</span>
+						{#if segment.responseRatio}
+							<span class="text-xs opacity-80">RR: {segment.responseRatio}</span>
+						{/if}
 					</div>
 				{/each}
 			</div>
 			<div class="flex relative" style="height: 30px;">
 				{#each results.ganttChart as segment, index}
-					<div class="relative" style="width: {Math.max(segment.duration * 60, 80)}px;">
+					<div class="relative" style="width: {Math.max(segment.duration * 60, 100)}px;">
 						{#if index === 0}
 							<div class="absolute left-0 top-2 text-sm font-medium text-white">
 								{segment.start}
@@ -133,11 +167,11 @@
 
 	<!-- Average Times -->
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-		<div class="rounded-lg p-4" style="background-color: #a3be8c; border: 1px solid #8fbcbb;">
+		<div class="rounded-lg p-4" style="background-color: #d08770; border: 1px solid #bf616a;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Turnaround Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgTurnaroundTime}</p>
 		</div>
-		<div class="rounded-lg p-4" style="background-color: #88c0d0; border: 1px solid #81a1c1;">
+		<div class="rounded-lg p-4" style="background-color: #ebcb8b; border: 1px solid #d08770;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Waiting Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgWaitingTime}</p>
 		</div>
@@ -148,13 +182,13 @@
 		<h3 class="text-lg font-semibold mb-4 text-white">Formulas</h3>
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<div>
-				<h4 class="text-md font-semibold mb-2 text-white">FCFS Specific:</h4>
+				<h4 class="text-md font-semibold mb-2 text-white">HRRN Specific:</h4>
 				<div class="space-y-2">
 					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
-						<div class="text-yellow-400 text-sm">Processes execute in arrival order</div>
+						<div class="text-yellow-400 text-sm">Waiting Time for RR = Current Time - Arrival Time</div>
 					</div>
 					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
-						<div class="text-yellow-400 text-sm">Non-preemptive algorithm</div>
+						<div class="text-yellow-400 text-sm">Response Ratio = (Waiting Time + Burst Time) / Burst Time</div>
 					</div>
 				</div>
 			</div>

@@ -41,9 +41,7 @@
 			}
 
 			// Select process with shortest remaining time
-			const shortestProcess = availableProcesses.reduce((shortest, current) =>
-				current.remainingTime < shortest.remainingTime ? current : shortest
-			);
+			const shortestProcess = availableProcesses.reduce((shortest, current) => (current.remainingTime < shortest.remainingTime ? current : shortest));
 
 			// Check if we need to preempt (if there's a new process that arrives during execution)
 			const nextEventTime = getNextEventTime(currentTime, remainingProcesses, shortestProcess);
@@ -136,13 +134,7 @@
 		<div class="rounded-md overflow-hidden" style="background-color: #434c5e;">
 			<div class="flex">
 				{#each results.ganttChart as segment}
-					<div
-						class="flex items-center justify-center text-white font-medium text-sm border-r last:border-r-0"
-						style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px; background-color: {segment.pid !== 'Idle'
-							? '#b48ead'
-							: '#4c566a'}; border-color: #2e3440;"
-						title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})"
-					>
+					<div class="flex items-center justify-center text-white font-medium text-sm border-r last:border-r-0" style="width: {Math.max(segment.duration * 60, 80)}px; height: 60px; background-color: {segment.pid !== 'Idle' ? '#b48ead' : '#4c566a'}; border-color: #2e3440;" title="Process {segment.pid}: {segment.start} - {segment.end} (Duration: {segment.duration})">
 						P{segment.pid}
 					</div>
 				{/each}
@@ -196,7 +188,7 @@
 	</div>
 
 	<!-- Average Times -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 		<div class="rounded-lg p-4" style="background-color: #a3be8c; border: 1px solid #8fbcbb;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Turnaround Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgTurnaroundTime}</p>
@@ -204,6 +196,38 @@
 		<div class="rounded-lg p-4" style="background-color: #88c0d0; border: 1px solid #81a1c1;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Waiting Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgWaitingTime}</p>
+		</div>
+	</div>
+
+	<!-- Formulas Section -->
+	<div class="rounded-lg p-4" style="background-color: #434c5e; border: 1px solid #4c566a;">
+		<h3 class="text-lg font-semibold mb-4 text-white">Formulas</h3>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div>
+				<h4 class="text-md font-semibold mb-2 text-white">SRT Specific:</h4>
+				<div class="space-y-2">
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-yellow-400 text-sm">Remaining Time = Burst Time - Executed Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-yellow-400 text-sm">Select shortest remaining time (preemptive)</div>
+					</div>
+				</div>
+			</div>
+			<div>
+				<h4 class="text-md font-semibold mb-2 text-white">General Scheduling:</h4>
+				<div class="space-y-2">
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Completion Time = When process finishes</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Turnaround Time = Completion Time - Arrival Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-green-400 text-sm">Waiting Time = Turnaround Time - Burst Time</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
