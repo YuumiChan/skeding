@@ -1,6 +1,8 @@
 <script>
 	import FCFSComponent from "$lib/components/FCFSComponent.svelte";
 	import HRRNComponent from "$lib/components/HRRNComponent.svelte";
+	import MFQComponent from "$lib/components/MFQComponent.svelte";
+	import MLQComponent from "$lib/components/MLQComponent.svelte";
 	import PriorityNonPreemptiveComponent from "$lib/components/PriorityNonPreemptiveComponent.svelte";
 	import PriorityPreemptiveComponent from "$lib/components/PriorityPreemptiveComponent.svelte";
 	import RoundRobinComponent from "$lib/components/RoundRobinComponent.svelte";
@@ -23,6 +25,8 @@
 		{ value: "PNP", label: "Priority (Non-Preemptive)" },
 		{ value: "PP", label: "Priority (Preemptive)" },
 		{ value: "HRRN", label: "Highest Response Ratio Next (HRRN)" },
+		{ value: "MLQ", label: "Multiple Level Queue (MLQ)" },
+		{ value: "MFQ", label: "Multilevel Feedback Queue (MFQ)" },
 	];
 
 	// Hide results when algorithm changes
@@ -100,32 +104,33 @@
 	}
 
 	function addExampleData() {
-		const hasPriorityAlgorithm = selectedAlgorithm === "PNP" || selectedAlgorithm === "PP";
+		const hasPriorityAlgorithm = selectedAlgorithm === "PNP" || selectedAlgorithm === "PP" || selectedAlgorithm === "MLQ" || selectedAlgorithm === "MFQ";
+		const isMLQ = selectedAlgorithm === "MLQ";
 
 		processes = [
 			{
 				pid: 1,
 				burstTime: Math.floor(Math.random() * 10) + 1,
 				arrivalTime: Math.floor(Math.random() * 11),
-				...(hasPriorityAlgorithm && { priority: Math.floor(Math.random() * 5) + 1 }),
+				...(hasPriorityAlgorithm && { priority: isMLQ ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1 }),
 			},
 			{
 				pid: 2,
 				burstTime: Math.floor(Math.random() * 10) + 1,
 				arrivalTime: Math.floor(Math.random() * 11),
-				...(hasPriorityAlgorithm && { priority: Math.floor(Math.random() * 5) + 1 }),
+				...(hasPriorityAlgorithm && { priority: isMLQ ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1 }),
 			},
 			{
 				pid: 3,
 				burstTime: Math.floor(Math.random() * 10) + 1,
 				arrivalTime: Math.floor(Math.random() * 11),
-				...(hasPriorityAlgorithm && { priority: Math.floor(Math.random() * 5) + 1 }),
+				...(hasPriorityAlgorithm && { priority: isMLQ ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1 }),
 			},
 			{
 				pid: 4,
 				burstTime: Math.floor(Math.random() * 10) + 1,
 				arrivalTime: Math.floor(Math.random() * 11),
-				...(hasPriorityAlgorithm && { priority: Math.floor(Math.random() * 5) + 1 }),
+				...(hasPriorityAlgorithm && { priority: isMLQ ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1 }),
 			},
 		];
 		showResults = false;
@@ -256,7 +261,9 @@
 							<th class="border border-gray-300 px-4 py-2">PID</th>
 							<th class="border border-gray-300 px-4 py-2">Arrival Time</th>
 							<th class="border border-gray-300 px-4 py-2">Burst Time</th>
-							<th class="border border-gray-300 px-4 py-2">Priority</th>
+							{#if selectedAlgorithm === "PNP" || selectedAlgorithm === "PP" || selectedAlgorithm === "MFQ" || selectedAlgorithm === "MLQ"}
+								<th class="border border-gray-300 px-4 py-2">Priority</th>
+							{/if}
 							<th class="border border-gray-300 px-4 py-2">Action</th>
 						</tr>
 					</thead>
@@ -272,9 +279,11 @@
 								<td class="border border-gray-300 px-2 py-2 text-center">
 									<input type="number" value={process.burstTime} on:input={(e) => updateProcess(index, "burstTime", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" />
 								</td>
-								<td class="border border-gray-300 px-2 py-2 text-center">
-									<input type="number" value={process.priority || ""} on:input={(e) => updateProcess(index, "priority", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" placeholder="Optional" />
-								</td>
+								{#if selectedAlgorithm === "PNP" || selectedAlgorithm === "PP" || selectedAlgorithm === "MFQ" || selectedAlgorithm === "MLQ"}
+									<td class="border border-gray-300 px-2 py-2 text-center">
+										<input type="number" value={process.priority || ""} on:input={(e) => updateProcess(index, "priority", e.target.value)} class="w-full text-center border-0 bg-transparent focus:outline-none focus:bg-blue-50 rounded px-2 py-1" min="0" placeholder="Optional" />
+									</td>
+								{/if}
 								<td class="border border-gray-300 px-4 py-2 text-center">
 									<button on:click={() => removeProcess(index)} class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"> Remove </button>
 								</td>
@@ -310,6 +319,10 @@
 			<PriorityPreemptiveComponent {processes} />
 		{:else if selectedAlgorithm === "HRRN"}
 			<HRRNComponent {processes} />
+		{:else if selectedAlgorithm === "MLQ"}
+			<MLQComponent {processes} />
+		{:else if selectedAlgorithm === "MFQ"}
+			<MFQComponent {processes} />
 		{/if}
 	{/if}
 </div>
