@@ -1,7 +1,7 @@
 <script>
 	export let processes = [];
 
-	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
+	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0, cpuEfficiency: 0, throughput: 0 };
 
 	$: if (processes.length > 0) {
 		calculate();
@@ -12,7 +12,7 @@
 	}
 
 	function calculatePriorityNonPreemptive(processes) {
-		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
+		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0, cpuEfficiency: 0, throughput: 0 };
 
 		const processResults = [];
 		const ganttChart = [];
@@ -74,11 +74,19 @@
 		const avgTurnaroundTime = processResults.reduce((sum, p) => sum + p.turnaroundTime, 0) / processes.length;
 		const avgWaitingTime = processResults.reduce((sum, p) => sum + p.waitingTime, 0) / processes.length;
 
+		// Calculate CPU efficiency and throughput
+		const totalExecutionTime = processes.reduce((sum, p) => sum + p.burstTime, 0);
+		const totalTime = Math.max(...processResults.map((p) => p.completionTime));
+		const cpuEfficiency = parseFloat(((totalExecutionTime / totalTime) * 100).toFixed(2));
+		const throughput = parseFloat((processes.length / totalTime).toFixed(2));
+
 		return {
 			processResults: processResults.sort((a, b) => a.pid - b.pid),
 			ganttChart,
 			avgTurnaroundTime: parseFloat(avgTurnaroundTime.toFixed(2)),
 			avgWaitingTime: parseFloat(avgWaitingTime.toFixed(2)),
+			cpuEfficiency,
+			throughput,
 		};
 	}
 </script>
@@ -150,8 +158,8 @@
 		</div>
 	</div>
 
-	<!-- Average Times -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+	<!-- Average Times and Performance Metrics -->
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 		<div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
 			<h4 class="font-semibold text-purple-800 mb-2">Average Turnaround Time</h4>
 			<p class="text-2xl font-bold text-purple-600">{results.avgTurnaroundTime}</p>
@@ -159,6 +167,14 @@
 		<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
 			<h4 class="font-semibold text-blue-800 mb-2">Average Waiting Time</h4>
 			<p class="text-2xl font-bold text-blue-600">{results.avgWaitingTime}</p>
+		</div>
+		<div class="bg-pink-50 rounded-lg p-4 border border-pink-200">
+			<h4 class="font-semibold text-pink-800 mb-2">CPU Efficiency</h4>
+			<p class="text-2xl font-bold text-pink-600">{results.cpuEfficiency}%</p>
+		</div>
+		<div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+			<h4 class="font-semibold text-yellow-800 mb-2">Throughput</h4>
+			<p class="text-2xl font-bold text-yellow-600">{results.throughput}</p>
 		</div>
 	</div>
 
@@ -188,6 +204,12 @@
 					</div>
 					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
 						<div class="text-green-400 text-sm">Waiting Time = Turnaround Time - Burst Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-blue-400 text-sm">CPU Efficiency = (Total Execution Time / Total Time) × 100%</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-blue-400 text-sm">Throughput = Number of Processes / Total Time</div>
 					</div>
 				</div>
 			</div>

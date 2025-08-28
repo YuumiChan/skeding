@@ -6,7 +6,7 @@
 	let quantum2 = 4;
 	let queueTypes = ["RR(q=2)", "RR(q=4)", "FCFS"];
 	let timeQuantums = [2, 4, Infinity];
-	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
+	let results = { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0, cpuEfficiency: 0, throughput: 0 };
 
 	// Update queue types and quantums when input changes
 	$: {
@@ -23,7 +23,7 @@
 	}
 
 	function calculateMFQ(processes) {
-		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0 };
+		if (processes.length === 0) return { processResults: [], ganttChart: [], avgTurnaroundTime: 0, avgWaitingTime: 0, cpuEfficiency: 0, throughput: 0 };
 
 		const processResults = [];
 		const ganttChart = [];
@@ -132,11 +132,19 @@
 		const avgTurnaroundTime = processResults.reduce((sum, p) => sum + p.turnaroundTime, 0) / processes.length;
 		const avgWaitingTime = processResults.reduce((sum, p) => sum + p.waitingTime, 0) / processes.length;
 
+		// Calculate CPU efficiency and throughput
+		const totalExecutionTime = processes.reduce((sum, p) => sum + p.burstTime, 0);
+		const totalTime = currentTime;
+		const cpuEfficiency = totalTime > 0 ? (totalExecutionTime / totalTime) * 100 : 0;
+		const throughput = totalTime > 0 ? processes.length / totalTime : 0;
+
 		return {
 			processResults: processResults.sort((a, b) => a.pid - b.pid),
 			ganttChart,
 			avgTurnaroundTime: parseFloat(avgTurnaroundTime.toFixed(2)),
 			avgWaitingTime: parseFloat(avgWaitingTime.toFixed(2)),
+			cpuEfficiency: parseFloat(cpuEfficiency.toFixed(2)),
+			throughput: parseFloat(throughput.toFixed(4)),
 		};
 	}
 
@@ -259,15 +267,23 @@
 		</div>
 	</div>
 
-	<!-- Average Times -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-		<div class="rounded-lg p-4" style="background-color: #bf616a; border: 1px solid #a3515a;">
+	<!-- Average Times and Performance Metrics -->
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+		<div class="rounded-lg p-4" style="background-color: #a3be8c; border: 1px solid #8faa78;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Turnaround Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgTurnaroundTime}</p>
 		</div>
-		<div class="rounded-lg p-4" style="background-color: #d08770; border: 1px solid #b8735e;">
+		<div class="rounded-lg p-4" style="background-color: #88c0d0; border: 1px solid #7aa8bb;">
 			<h4 class="font-semibold mb-2" style="color: #2e3440;">Average Waiting Time</h4>
 			<p class="text-2xl font-bold" style="color: #2e3440;">{results.avgWaitingTime}</p>
+		</div>
+		<div class="rounded-lg p-4" style="background-color: #b48ead; border: 1px solid #a07a98;">
+			<h4 class="font-semibold mb-2" style="color: #2e3440;">CPU Efficiency</h4>
+			<p class="text-2xl font-bold" style="color: #2e3440;">{results.cpuEfficiency}%</p>
+		</div>
+		<div class="rounded-lg p-4" style="background-color: #ebcb8b; border: 1px solid #d4b575;">
+			<h4 class="font-semibold mb-2" style="color: #2e3440;">Throughput</h4>
+			<p class="text-2xl font-bold" style="color: #2e3440;">{results.throughput}</p>
 		</div>
 	</div>
 
@@ -300,6 +316,12 @@
 					</div>
 					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
 						<div class="text-green-400 text-sm">Waiting Time = Turnaround Time - Burst Time</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-blue-400 text-sm">CPU Efficiency = (Total Execution Time / Total Time) × 100%</div>
+					</div>
+					<div class="p-2 rounded" style="background-color: #2e3440; font-family: monospace;">
+						<div class="text-blue-400 text-sm">Throughput = Number of Processes / Total Time</div>
 					</div>
 				</div>
 			</div>
